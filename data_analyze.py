@@ -29,7 +29,7 @@ def load_data(file_path):
 
 
 # --- 데이터 로드 ---
-FILE_PATH = r'C:\Users\user\Desktop\학교 프로젝트\pjt\soinsu\ai_assistant_usage_student_life.csv'
+FILE_PATH = r'ai_assistant_usage_student_life.csv'
 df = load_data(FILE_PATH)
 
 # =========================================================================
