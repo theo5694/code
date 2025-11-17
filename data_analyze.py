@@ -23,15 +23,15 @@ if AGE_COL not in df.columns:
 QUESTION_INFO = {
     "What is your level of familiarity with AI?": {
         "ko": "AI에 대한 친숙도는 어느 정도인가",
-        "desc": "응답자가 AI 기술에 대해 얼마나 알고 있는지를 묻는 질문입니다."
+        "desc": "연령이 높을수록 인공지능에 익숙하지 않은 경행을 보인다."
     },
     "Do you use any AI-powered devices or applications daily?": {
         "ko": "일상에서 AI 기반 기기나 앱을 사용하는가",
-        "desc": "AI 기술이 적용된 서비스나 기기를 일상적으로 사용하는지 조사합니다."
+        "desc": "주로 모든 연령에서 절반정도의 인원이 인공지능을 활용한다."
     },
     "How much do you trust AI to make decisions in your daily life?": {
         "ko": "일상 속 AI 의사결정을 얼마나 신뢰하는가",
-        "desc": "생활 속에서 AI의 판단을 얼마나 신뢰하는지 확인하는 문항입니다."
+        "desc": "미성년자와 35~44세 사이를 제외하면 대부분 ."
     },
     "Do you think AI enhances your productivity in daily tasks?": {
         "ko": "AI가 생산성을 향상시킨다고 생각하는가",
