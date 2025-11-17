@@ -1,217 +1,118 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.figure_factory as ff
-import os
-from scipy.stats import chi2_contingency
 
-# --- 페이지 설정 ---
-st.set_page_config(
-    page_title="AI 사용 분석 대시보드 (최종)",
-    page_icon="🤖",
-    layout="wide"
-)
+st.set_page_config(page_title="Age-Based Analysis Dashboard", layout="wide")
+st.title("📊 Age Group 기반 자동 분석 대시보드 (한국어 UI 완성본)")
 
-# --- 데이터 로딩 함수 ---
 @st.cache_data
-def load_data(file_path):
-    if not os.path.exists(file_path):
-        st.error(f"'{file_path}' 파일을 찾을 수 없습니다. 경로를 확인하세요.")
-        return None
-    try:
-        data = pd.read_csv(file_path)
-        data['SessionDate'] = pd.to_datetime(data['SessionDate'])
-        data['UsedAgain'] = data['UsedAgain'].astype(bool)
-        return data
-    except Exception as e:
-        st.error(f"데이터 로딩 중 오류 발생: {e}")
-        return None
+def load_data():
+    return pd.read_csv("DATASET.csv")
+
+df = load_data()
+
+AGE_COL = "What is your age group?"
+
+if AGE_COL not in df.columns:
+    st.error(f"❌ 데이터셋에 '{AGE_COL}' 컬럼이 없습니다.")
+    st.stop()
+
+# -----------------------------------
+# 🔵 영어 → 한국어 매핑
+# -----------------------------------
+EN_KR_MAP = {
+    # 비율 기반 10문항
+    "What is your level of familiarity with AI?": "AI에 대한 친숙도는 어느 정도인가",
+    "Do you use any AI-powered devices or applications daily?": "일상에서 AI 기반 기기나 앱을 사용하는가",
+    "How much do you trust AI to make decisions in your daily life?": "일상 속 AI의 의사결정을 얼마나 신뢰하는가",
+    "Do you think AI enhances your productivity in daily tasks?": "AI가 생산성을 향상시킨다고 생각하는가",
+    "In which areas do you think AI will have the biggest impact in the future?": "미래에 AI가 가장 큰 영향을 미칠 분야는 무엇이라고 생각하는가",
+    "What benefits do you foresee with the advancement of AI?": "AI 발전이 가져올 이점은 무엇이라고 생각하는가",
+    "Should there be regulations on the development and use of AI?": "AI 개발 및 사용에 대한 규제가 필요하다고 생각하는가",
+    "Do you think AI will improve or worsen human society in the long run?": "AI가 장기적으로 인간 사회를 개선하거나 악화시킬 수 있다는 의견",
+    "What is your overall opinion on AI?": "AI에 대한 전반적인 의견은 무엇인가",
+    "Would you be interested in learning more about AI and its applications in the future?": "AI 및 활용 분야를 더 배우고 싶은가",
+
+    # 개수 기반 4문항
+    "In what areas do you use AI on a daily basis?": "일상에서 어떤 분야에 AI를 사용하는가",
+    "How much do you trust AI to make decisions in your daily life?": "일상 속 AI 의사결정을 얼마나 신뢰하는가",
+    "Do you believe AI will play a significant role in shaping the future?": "AI가 미래 사회 형성에 중요한 역할을 한다고 생각하는가",
+    "What concerns do you have regarding AI in the future?": "미래 AI에 대해 어떤 우려를 가지고 있는가"
+}
+
+KR_EN_MAP = {v: k for k, v in EN_KR_MAP.items()}
+
+RATE_COLUMNS = list(EN_KR_MAP.keys())[:10]
+COUNT_COLUMNS = list(EN_KR_MAP.keys())[10:]
+
+RATE_COLUMNS_KR = [EN_KR_MAP[q] for q in RATE_COLUMNS]
+COUNT_COLUMNS_KR = [EN_KR_MAP[q] for q in COUNT_COLUMNS]
+
+tab1, tab2, tab3 = st.tabs(["👥 나이 분포", "📊 비율(%) 비교", "📘 개수 비교"])
+
+# -----------------------------
+#  탭 1 — 나이 분포
+# -----------------------------
+with tab1:
+    st.subheader("👥 Age Group Distribution (나이 분포)")
+    fig_age = px.histogram(df, x=AGE_COL, title="나이 그룹 분포")
+    st.plotly_chart(fig_age, use_container_width=True)
 
 
-# --- 데이터 로드 ---
-FILE_PATH = r'ai_assistant_usage_student_life.csv'
-df = load_data(FILE_PATH)
+# -----------------------------
+#  탭 2 — 비율(%) 비교
+# -----------------------------
+with tab2:
+    st.subheader("📊 문항 선택 (비율 기반 / 한국어 선택)")
 
-# =========================================================================
-# 📌 제목 및 개요
-# =========================================================================
-st.title("🤖 학생 AI 어시스턴트 사용 분석 대시보드")
-st.markdown("---")
+    kr_choice = st.selectbox("비율로 분석할 문항 선택", RATE_COLUMNS_KR)
+    target_col = KR_EN_MAP[kr_choice]
 
-st.markdown("### 🔍 분석 개요")
-st.markdown("이 대시보드는 **학생 AI 어시스턴트 사용 데이터**를 기반으로, 사용자의 특성(수준, 전공), 사용 행태(시간, 프롬프트 수)가 최종 **만족도와 재사용 의사**에 미치는 영향을 분석합니다.")
+    # 🔶 학생이 직접 해석을 적는 칸
+    st.write("✏️ **해석(학생 작성 영역)**")
+    st.text_area("문항 해석을 직접 입력하세요:", placeholder="예: 이 질문은 사람들이 AI에 얼마나 익숙한지를 묻고 있다.", key="rate_comment")
 
-if df is not None:
-    st.info(f"📊 **현재 데이터 (필터링 전):** 총 **{df.shape[0]:,}**개 행")
+    cat_df = df.groupby([AGE_COL, target_col]).size().reset_index(name="count")
+    total = cat_df.groupby(AGE_COL)["count"].transform("sum")
+    cat_df["percentage"] = cat_df["count"] / total * 100
 
-st.markdown("---")
-
-with st.expander("📋 주요 변수 설명 (클릭하여 열기)"):
-    st.markdown("""
-    - **SessionID**: 세션 고유 ID  
-    - **StudentLevel**: 학생 수준 (High School, Undergraduate, Graduate)  
-    - **Discipline**: 전공 분야  
-    - **SessionDate**: 세션 날짜  
-    - **SessionLengthMin**: 세션 길이 (분 단위)  
-    - **TotalPrompts**: 총 프롬프트(질문) 개수  
-    - **TaskType**: 작업 유형  
-    - **AI_AssistanceLevel**: AI 도움 수준 (1~5점)  
-    - **FinalOutcome**: 세션 최종 결과  
-    - **UsedAgain**: 재사용 의사 여부 (True/False)  
-    - **SatisfactionRating**: 만족도 (1~5점)
-    """)
-
-st.markdown("---")
-
-# =========================================================================
-# 📊 데이터 필터
-# =========================================================================
-if df is not None:
-    st.sidebar.header("📊 필터 옵션")
-
-    selected_level = st.sidebar.multiselect(
-        "학생 수준 선택", options=df['StudentLevel'].unique(),
-        default=df['StudentLevel'].unique()
+    fig = px.bar(
+        cat_df,
+        x=AGE_COL,
+        y="percentage",
+        color=target_col,
+        title=f"연령대별 {kr_choice} (비율 비교)",
     )
+    st.plotly_chart(fig, use_container_width=True)
 
-    selected_discipline = st.sidebar.multiselect(
-        "전공 선택", options=df['Discipline'].unique(),
-        default=df['Discipline'].unique()
+    st.write("📘 응답 분포")
+    st.table(df[target_col].value_counts())
+
+
+# -----------------------------
+#  탭 3 — 개수(count) 비교
+# -----------------------------
+with tab3:
+    st.subheader("📘 문항 선택 (개수 기반 / 한국어 선택)")
+
+    kr_choice = st.selectbox("개수로 분석할 문항 선택", COUNT_COLUMNS_KR)
+    target_col = KR_EN_MAP[kr_choice]
+
+    # 🔶 학생이 직접 해석을 적는 칸
+    st.write("✏️ **해석(학생 작성 영역)**")
+    st.text_area("문항 해석을 직접 입력하세요:", placeholder="예: 이 질문은 사람들이 어떤 분야에서 AI를 사용하는지를 묻고 있다.", key="count_comment")
+
+    count_df = df.groupby([AGE_COL, target_col]).size().reset_index(name="count")
+
+    fig = px.bar(
+        count_df,
+        x=AGE_COL,
+        y="count",
+        color=target_col,
+        barmode="group",
+        title=f"연령대별 {kr_choice} (개수 비교)",
     )
+    st.plotly_chart(fig, use_container_width=True)
 
-    selected_task = st.sidebar.multiselect(
-        "작업 유형 선택", options=df['TaskType'].unique(),
-        default=df['TaskType'].unique()
-    )
-
-    df_filtered = df.query(
-        "StudentLevel == @selected_level & Discipline == @selected_discipline & TaskType == @selected_task"
-    )
-
-    if df_filtered.empty:
-        st.warning("선택한 조건에 해당하는 데이터가 없습니다.")
-    else:
-        # =========================================================================
-        # 📂 분석 탭 구성
-        # =========================================================================
-        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-            "📈 핵심 요약", "🕒 세션 길이 분석", "🎓 수준별 분석",
-            "🧩 작업 유형 분석", "📊 상관관계 분석", "📋 원본 데이터"
-        ])
-
-        # --------------------------------------------
-        # 📈 탭 1. 핵심 요약
-        # --------------------------------------------
-        with tab1:
-            st.header("1. 핵심 요약 지표")
-            col1, col2, col3, col4, col5, col6 = st.columns(6)
-            col1.metric("총 세션 수", f"{df_filtered.shape[0]:,}")
-            col2.metric("평균 만족도", f"{df_filtered['SatisfactionRating'].mean():.2f} / 5")
-            col3.metric("평균 세션 길이 (분)", f"{df_filtered['SessionLengthMin'].mean():.1f} 분")
-            col4.metric("평균 프롬프트 수", f"{df_filtered['TotalPrompts'].mean():.1f} 개")
-            col5.metric("재사용률", f"{(df_filtered['UsedAgain'].mean() * 100):.1f}%")
-            col6.metric("평균 AI 도움 수준", f"{df_filtered['AI_AssistanceLevel'].mean():.2f}")
-
-        # --------------------------------------------
-        # 🕒 탭 2. 세션 길이 vs 만족도
-        # --------------------------------------------
-        with tab2:
-            st.header("2. 세션 길이 vs 만족도")
-
-            fig = px.scatter(
-                df_filtered, x='SessionLengthMin', y='SatisfactionRating',
-                color='StudentLevel', hover_data=['TaskType', 'TotalPrompts'],
-                labels={'SessionLengthMin': '세션 길이 (분)', 'SatisfactionRating': '만족도'},
-                title="AI 사용 시간과 만족도 관계"
-            )
-            # y축 자동 확대
-            ymin, ymax = df_filtered['SatisfactionRating'].min(), df_filtered['SatisfactionRating'].max()
-            fig.update_layout(yaxis_range=[max(1, ymin - 0.3), min(5, ymax + 0.3)])
-            st.plotly_chart(fig, use_container_width=True)
-
-        # --------------------------------------------
-        # 🎓 탭 3. 수준별 분석
-        # --------------------------------------------
-        with tab3:
-            st.header("3. 학생 수준(StudentLevel) vs 만족도")
-            colA, colB = st.columns(2)
-
-            with colA:
-                avg_sat = df_filtered.groupby('StudentLevel')['SatisfactionRating'].mean().reset_index()
-                fig_bar = px.bar(avg_sat, x='StudentLevel', y='SatisfactionRating',
-                                 color='StudentLevel', title="학생 수준별 평균 만족도")
-                ymin, ymax = avg_sat['SatisfactionRating'].min(), avg_sat['SatisfactionRating'].max()
-                fig_bar.update_layout(yaxis_range=[max(1, ymin - 0.3), min(5, ymax + 0.3)])
-                st.plotly_chart(fig_bar, use_container_width=True)
-
-            with colB:
-                fig_scatter = px.scatter(
-                    df_filtered, x='SessionLengthMin', y='SatisfactionRating',
-                    color='StudentLevel', title="수준별 세션 길이-만족도 분포"
-                )
-                ymin, ymax = df_filtered['SatisfactionRating'].min(), df_filtered['SatisfactionRating'].max()
-                fig_scatter.update_layout(yaxis_range=[max(1, ymin - 0.3), min(5, ymax + 0.3)])
-                st.plotly_chart(fig_scatter, use_container_width=True)
-
-        # --------------------------------------------
-        # 🧩 탭 4. 작업 유형 분석
-        # --------------------------------------------
-        with tab4:
-            st.header("4. 작업 유형(TaskType) vs 만족도")
-            colA, colB = st.columns(2)
-
-            with colA:
-                avg_task = df_filtered.groupby('TaskType')['SatisfactionRating'].mean().reset_index()
-                fig_bar = px.bar(avg_task, x='TaskType', y='SatisfactionRating',
-                                 color='TaskType', title="작업 유형별 평균 만족도")
-                ymin, ymax = avg_task['SatisfactionRating'].min(), avg_task['SatisfactionRating'].max()
-                fig_bar.update_layout(yaxis_range=[max(1, ymin - 0.3), min(5, ymax + 0.3)])
-                st.plotly_chart(fig_bar, use_container_width=True)
-
-            with colB:
-                fig_scatter = px.scatter(
-                    df_filtered, x='SessionLengthMin', y='SatisfactionRating',
-                    color='TaskType', title="작업별 세션 길이-만족도 분포"
-                )
-                ymin, ymax = df_filtered['SatisfactionRating'].min(), df_filtered['SatisfactionRating'].max()
-                fig_scatter.update_layout(yaxis_range=[max(1, ymin - 0.3), min(5, ymax + 0.3)])
-                st.plotly_chart(fig_scatter, use_container_width=True)
-
-        # --------------------------------------------
-        # 📊 탭 5. 상관관계 분석
-        # --------------------------------------------
-        with tab5:
-            st.header("5. 상관관계 분석")
-            numeric_df = df_filtered[['SessionLengthMin', 'TotalPrompts', 'AI_AssistanceLevel', 'SatisfactionRating']]
-            corr = numeric_df.corr()
-
-            fig_corr = ff.create_annotated_heatmap(
-                z=corr.values, x=list(corr.columns), y=list(corr.index),
-                colorscale='Viridis', showscale=True
-            )
-            fig_corr.update_layout(title="수치형 변수 간 상관관계 Heatmap")
-            st.plotly_chart(fig_corr, use_container_width=True)
-
-            st.subheader("범주형 관계: 학생 수준 vs 작업 유형")
-            contingency = pd.crosstab(df_filtered['StudentLevel'], df_filtered['TaskType'])
-            st.dataframe(contingency)
-
-            if contingency.min().min() > 0:
-                chi2, p, _, _ = chi2_contingency(contingency)
-                st.code(f"카이제곱 통계량: {chi2:.2f}, P-value: {p:.3f}")
-                if p < 0.05:
-                    st.success("✅ 유의미한 관계가 있음 (P < 0.05)")
-                else:
-                    st.warning("⚠️ 통계적으로 유의미하지 않음 (P ≥ 0.05)")
-
-        # --------------------------------------------
-        # 📋 탭 6. 원본 데이터
-        # --------------------------------------------
-        with tab6:
-            st.header("6. 원본 데이터")
-            if st.checkbox("전체 데이터 표시", key='show_data'):
-                st.dataframe(df_filtered)
-            else:
-                st.dataframe(df_filtered.head(10))
-else:
-    st.warning("데이터 파일을 불러올 수 없습니다. 경로를 확인하세요.")
+    st.write("📘 응답 분포표")
+    st.table(df[target_col].value_counts())
