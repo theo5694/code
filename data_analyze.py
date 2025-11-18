@@ -65,7 +65,7 @@ QUESTION_INFO = {
     },
     "How much do you trust AI to make decisions in your daily life?": {
         "ko": "일상 속 AI 의사결정을 얼마나 신뢰하는가",
-        "desc": "AI 판단에 대한 신뢰 수준을 묻습니다."
+        "desc": "나이가 증가할수록 신뢰하는 경행을 보인다."
     },
     "Do you believe AI will play a significant role in shaping the future?": {
         "ko": "AI가 미래 사회 형성에 중요한 역할을 한다고 생각하는가",
