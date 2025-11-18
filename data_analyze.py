@@ -23,7 +23,7 @@ if AGE_COL not in df.columns:
 QUESTION_INFO = {
     "What is your level of familiarity with AI?": {
         "ko": "AI에 대한 친숙도는 어느 정도인가",
-        "desc": "연령이 높을수록 인공지능에 익숙하지 않은 경행을 보인다."
+        "desc": "연령이 높을수록 인공지능에 익숙하지 않은 경향을 보인다."
     },
     "Do you use any AI-powered devices or applications daily?": {
         "ko": "일상에서 AI 기반 기기나 앱을 사용하는가",
@@ -31,41 +31,37 @@ QUESTION_INFO = {
     },
     "How much do you trust AI to make decisions in your daily life?": {
         "ko": "일상 속 AI 의사결정을 얼마나 신뢰하는가",
-        "desc": "미성년자와 35~44세 사이를 제외하면 대부분 ."
+        "desc": "미성년자와 35~44세 사이를 제외하면 대부분 인공지능을 신뢰한는 경향을 보인다."
     },
     "Do you think AI enhances your productivity in daily tasks?": {
         "ko": "AI가 생산성을 향상시킨다고 생각하는가",
-        "desc": "AI가 실제로 효율성과 생산성을 높여주는지에 대한 인식 조사입니다."
+        "desc": "18~24세의 경우 인공지능이 생산성을 높인다고 생각하는 비율이 높다."
     },
     "In which areas do you think AI will have the biggest impact in the future?": {
         "ko": "미래에 AI가 가장 큰 영향을 미칠 분야는 무엇이라고 생각하는가",
-        "desc": "응답자가 예상하는 AI의 미래 영향력 분야를 파악합니다."
-    },
-    "What benefits do you foresee with the advancement of AI?": {
-        "ko": "AI 발전이 가져올 이점은 무엇이라고 생각하는가",
-        "desc": "AI 기술의 발전으로 기대되는 긍정적 효과를 묻습니다."
+        "desc": "전반적으로 모든 연령층에서 교육과 유흥에 활용되어질것이라 예상한다."
     },
     "Should there be regulations on the development and use of AI?": {
         "ko": "AI 개발 및 사용에 대한 규제가 필요하다고 생각하는가",
-        "desc": "AI 기술에 대한 규제 필요성을 평가하는 문항입니다."
+        "desc": "전반적으로 AI 기술에 대한 규제가 필요가 있다 생각하는 사람들의 비율이 높다."
     },
     "Do you think AI will improve or worsen human society in the long run?": {
         "ko": "AI가 장기적으로 인간 사회에 미치는 영향은 긍정적인가 부정적인가",
-        "desc": "AI의 장기적 사회적 영향에 대한 인식을 조사합니다."
+        "desc": "대부분의 연령층이 AI가 부정적인 영향을 끼치지도 끼치지 않지도 않다는 의견을 보인다."
     },
     "What is your overall opinion on AI?": {
         "ko": "AI에 대한 전반적인 의견은 무엇인가",
-        "desc": "응답자의 AI에 대한 전체적인 태도를 확인하는 질문입니다."
+        "desc": "전반적으로 중립이 많다."
     },
     "Would you be interested in learning more about AI and its applications in the future?": {
         "ko": "AI 및 활용 분야를 더 배우고 싶은가",
-        "desc": "향후 AI 관련 학습 의향을 묻습니다."
+        "desc": "나이가 올라갈수록 그 비율이 증가한다."
     },
 
     # Count 기반 질문
     "In what areas do you use AI on a daily basis?": {
         "ko": "일상에서 어떤 분야에 AI를 사용하는가",
-        "desc": "일상생활 중 AI를 사용하는 구체적인 분야를 조사합니다."
+        "desc": "대체로 일상생활에서 유용하게 쓰이는 소셜미디아와 쇼핑 관련 ai를 많이 사용하며 18~24세의 사람들이 가장 활발하게 이를 이용한다."
     },
     "How much do you trust AI to make decisions in your daily life?": {
         "ko": "일상 속 AI 의사결정을 얼마나 신뢰하는가",
@@ -73,11 +69,11 @@ QUESTION_INFO = {
     },
     "Do you believe AI will play a significant role in shaping the future?": {
         "ko": "AI가 미래 사회 형성에 중요한 역할을 한다고 생각하는가",
-        "desc": "미래 변화에서 AI의 영향력을 평가합니다."
+        "desc": "대체로 그렇지 않다는 의견이 주를 이루며, 나이가 많은집단으로 갈수록 더 심해지는 경행을 보인다."
     },
     "What concerns do you have regarding AI in the future?": {
         "ko": "미래 AI에 대해 어떤 우려를 가지고 있는가",
-        "desc": "AI 발전에 따른 걱정·부정적 요소를 조사합니다."
+        "desc": "나이가 들수록 해킹과 같은 피해에 대한 우려가 커지는 경향을 보이고 있으며, 실직 문제는 이와 반대로 나이가들수록 감소하는 경향을 보인다."
     }
 }
 
