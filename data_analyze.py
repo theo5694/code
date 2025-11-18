@@ -18,7 +18,7 @@ if AGE_COL not in df.columns:
     st.stop()
 
 # ----------------------------------------------------
-# 🔎 왼쪽 사이드바: 나이 필터 추가
+# 🔎 왼쪽 사이드바: 나이 필터
 # ----------------------------------------------------
 st.sidebar.header("🔎 연령대 필터")
 
@@ -32,6 +32,21 @@ selected_age_groups = st.sidebar.multiselect(
 
 # 필터 적용
 df = df[df[AGE_COL].isin(selected_age_groups)]
+
+# ----------------------------------------------------
+# 🔧 나이 순서 강제 정렬
+# ----------------------------------------------------
+AGE_ORDER = [
+    "Under 18",
+    "18 - 24",
+    "25 - 34",
+    "35 - 44",
+    "45 - 54",
+    "55 - 64"
+]
+
+AGE_ORDER_USED = [age for age in AGE_ORDER if age in df[AGE_COL].unique()]
+df[AGE_COL] = pd.Categorical(df[AGE_COL], categories=AGE_ORDER_USED, ordered=True)
 
 # ----------------------------------------------------
 # 🔵 질문 한국어 + 설명문
@@ -74,7 +89,7 @@ QUESTION_INFO = {
         "desc": "나이가 많을수록 배우고 싶다는 비율이 높다."
     },
 
-    # Count 기반 질문
+    # Count 기반
     "In what areas do you use AI on a daily basis?": {
         "ko": "일상에서 어떤 분야에 AI를 사용하는가",
         "desc": "소셜미디어·쇼핑 분야 사용이 가장 많으며 18~24세가 가장 활발하다."
@@ -108,7 +123,7 @@ tab1, tab2, tab3 = st.tabs(["👥 나이 분포", "📊 비율(%) 비교", "📘
 # -----------------------------
 with tab1:
     st.subheader("👥 Age Group Distribution (나이 분포)")
-    fig_age = px.histogram(df, x=AGE_COL, title="나이 그룹 분포")
+    fig_age = px.histogram(df, x=AGE_COL, title="나이 그룹 분포", category_orders={AGE_COL: AGE_ORDER})
     st.plotly_chart(fig_age, use_container_width=True)
 
 # -----------------------------
@@ -132,6 +147,7 @@ with tab2:
         y="percentage",
         color=target_col,
         title=f"연령대별 {kr_choice} (비율 비교)",
+        category_orders={AGE_COL: AGE_ORDER}
     )
     st.plotly_chart(fig, use_container_width=True)
 
@@ -158,6 +174,7 @@ with tab3:
         color=target_col,
         barmode="group",
         title=f"연령대별 {kr_choice} (개수 비교)",
+        category_orders={AGE_COL: AGE_ORDER}
     )
     st.plotly_chart(fig, use_container_width=True)
 
