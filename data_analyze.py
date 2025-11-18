@@ -82,7 +82,7 @@ EN_KR_MAP = {k: v["ko"] for k, v in QUESTION_INFO.items()}
 KR_EN_MAP = {v["ko"]: k for k, v in QUESTION_INFO.items()}
 
 RATE_COLUMNS = list(EN_KR_MAP.keys())[:9]
-COUNT_COLUMNS = list(EN_KR_MAP.keys())[11:]
+COUNT_COLUMNS = list(EN_KR_MAP.keys())[9:]
 
 RATE_COLUMNS_KR = [EN_KR_MAP[q] for q in RATE_COLUMNS]
 COUNT_COLUMNS_KR = [EN_KR_MAP[q] for q in COUNT_COLUMNS]
